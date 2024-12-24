@@ -8,16 +8,61 @@ namespace websiteCCreal.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        private readonly ExpensesDbContex _contex;
+        public HomeController(ILogger<HomeController> logger, ExpensesDbContex contex)
         {
             _logger = logger;
+            _contex = contex;
         }
         public IActionResult Expenses()
         {
+            var allExpenses = _contex.Expenses.ToList();
+
+            var totalExpenses = allExpenses.Sum(x => x.Value);
+
+            ViewBag.Expenses = totalExpenses;
+
+            return View(allExpenses);
+        }
+        public IActionResult CreateEditExpense(int? id)
+        {
+            if(id != null)
+            {
+                // editing -> load
+                var expenseInDb = _contex.Expenses.SingleOrDefault(expense => expense.Id == id);
+                return View(expenseInDb);
+            }
+
+            
             return View();
         }
+        public IActionResult DeleteExpense(int id)
+        {
+            var expenseInDb = _contex.Expenses.SingleOrDefault(expense => expense.Id == id);
+            _contex.Expenses.Remove(expenseInDb);
+            _contex.SaveChanges();
+            return RedirectToAction("Expenses");
+        }
+        public IActionResult CreateEditExpenseForm(Expense model)
+        {
+            if(model.Id == 0)
+            {
+                // adding
+                _contex.Expenses.Add(model);
+            }
+            else
+            {
+                // editing
+                _contex.Expenses.Update(model);
+            }
+            
+            _contex.SaveChanges();
 
- 
+
+            return RedirectToAction("Expenses");
+        }
+
+
         public IActionResult Index()
         {
             return View();

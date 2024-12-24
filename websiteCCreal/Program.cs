@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using websiteCCreal.Models;
+
 namespace websiteCCreal
 {
     public class Program
@@ -8,6 +11,8 @@ namespace websiteCCreal
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddDbContext<ExpensesDbContex>(options =>
+                options.UseInMemoryDatabase("ExpensesDb") );
 
             var app = builder.Build();
 
